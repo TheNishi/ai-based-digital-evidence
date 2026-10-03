@@ -1,0 +1,5 @@
+Model,Accuracy,Precision,Recall,Specificity,F1,ROC_AUC,PR_AUC
+EfficientNet,0.5,0.0,0.0,1.0,0.0,1.0,1.0
+FasterViT,0.5,0.0,0.0,1.0,0.0,1.0,1.0
+EfficientFormerV2-S1,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+Ensemble,0.5,0.0,0.0,1.0,0.0,1.0,1.0

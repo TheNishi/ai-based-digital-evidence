@@ -20,7 +20,15 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run deepfake inference or single-file forensic analysis")
     parser.add_argument("--config", type=Path, default=Path("config/inference.yaml"))
     parser.add_argument("--input", type=Path, help="Path to an input image or video file for forensic analysis")
+    parser.add_argument("--evaluate", action="store_true", help="Run model evaluation on the configured test dataset")
     args = parser.parse_args()
+
+    if args.evaluate:
+        from evaluate import run_evaluation
+        success = run_evaluation(config_path=args.config.resolve())
+        if not success:
+            sys.exit(1)
+        return
 
     if args.input:
         input_path = args.input.resolve()

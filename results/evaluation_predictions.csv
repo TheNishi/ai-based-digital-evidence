@@ -1,0 +1,3 @@
+image_path,ground_truth,efficientnet_b3_prob,faster_vit_2_224_prob,efficientformerv2_s1_prob,ensemble_prob
+D:\ai based digital evidence\data\mini_deepfake_dataset\test\fake\5c7176a3-8f2f-4d37-bc55-74afd8a9e226.png,1,0.39441266655921936,0.4565557539463043,0.6516441106796265,0.4640689268708229
+D:\ai based digital evidence\data\mini_deepfake_dataset\test\real\IMG_8098.jpeg,0,0.3422253131866455,0.1276143342256546,0.16136595606803894,0.20779092013835906

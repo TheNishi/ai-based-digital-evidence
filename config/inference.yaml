@@ -2,6 +2,9 @@ seed: 1
 device: cuda
 
 data:
+  dataset_name: mini_deepfake_dataset
+  dataset_root: data/mini_deepfake_dataset
+  test_dir: data/mini_deepfake_dataset/test
   root: data/mini_deepfake_dataset
   test_split: test
   val_split: val
