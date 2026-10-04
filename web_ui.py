@@ -33,6 +33,8 @@ from orchestration.forensics import (
     run_forensic_analysis_image,
     run_forensic_analysis_video,
 )
+from orchestration.audio_forensics import run_forensic_analysis_audio
+from orchestration.text_forensics import run_forensic_analysis_text
 
 # ---------------------------------------------------------------------------
 # App configuration
@@ -311,6 +313,40 @@ def _generate_pdf_report(result: dict, cam_panels: list[dict], filename: str) ->
             if i % 3 == 2:
                 pdf.set_y(py + panel_h + 12)
 
+    # --- Audio Spectrogram Evidence ---
+    if result.get("spectrogram_b64"):
+        pdf.add_page()
+        pdf.set_fill_color(8, 20, 40)
+        pdf.rect(0, 0, 210, 15, "F")
+        pdf.set_text_color(0, 219, 233)
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_xy(10, 4)
+        pdf.cell(0, 7, "ACOUSTIC SPECTROGRAM & HARMONIC EVIDENCE")
+        pdf.set_y(22)
+        try:
+            spec_data = base64.b64decode(result["spectrogram_b64"])
+            tmp_spec = EXPORT_DIR / f"_pdf_spec_{datetime.now(tz=UTC).strftime('%Y%m%d%H%M%S%f')}.png"
+            with open(tmp_spec, "wb") as f_out:
+                f_out.write(spec_data)
+            pdf.image(str(tmp_spec), x=15, y=25, w=180, h=90)
+            tmp_spec.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+    # --- Text Evidence Excerpt ---
+    if result.get("text_preview"):
+        pdf.add_page()
+        pdf.set_fill_color(8, 20, 40)
+        pdf.rect(0, 0, 210, 15, "F")
+        pdf.set_text_color(0, 219, 233)
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_xy(10, 4)
+        pdf.cell(0, 7, "TEXT EVIDENCE EXCERPT & LINGUISTIC STYLOMETRY")
+        pdf.set_y(24)
+        pdf.set_font("Courier", "", 9)
+        pdf.set_text_color(220, 240, 255)
+        pdf.multi_cell(190, 6, result.get("text_preview", ""))
+
     # --- Chain of Custody Footer ---
     pdf.set_y(-35)
     pdf.set_fill_color(8, 20, 40)
@@ -447,6 +483,8 @@ def analyze_batch():
         suffix = Path(file.filename).suffix.lower()
         image_suffixes = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tiff"}
         video_suffixes = {".mp4", ".avi", ".mov", ".mkv", ".webm", ".flv"}
+        audio_suffixes = {".wav", ".mp3", ".ogg", ".flac", ".m4a", ".aac"}
+        text_suffixes = {".txt", ".pdf", ".json", ".csv", ".docx", ".log", ".md"}
 
         try:
             if suffix in image_suffixes:
@@ -479,6 +517,30 @@ def analyze_batch():
                     })
                 finally:
                     tmp_path.unlink(missing_ok=True)
+            elif suffix in audio_suffixes:
+                result = run_forensic_analysis_audio(file.stream, filename=file.filename)
+                results.append({
+                    "filename": file.filename,
+                    "type": "audio",
+                    "prediction": result["prediction"],
+                    "model_confidence": round(result["model_confidence"], 2),
+                    "reliability_score": round(result["reliability_score"], 2),
+                    "visual_consistency": "N/A",
+                    "metadata_integrity": result["metadata_integrity"],
+                    "artifact_detection": result["artifact_detection"],
+                })
+            elif suffix in text_suffixes:
+                result = run_forensic_analysis_text(file.stream, filename=file.filename)
+                results.append({
+                    "filename": file.filename,
+                    "type": "text",
+                    "prediction": result["prediction"],
+                    "model_confidence": round(result["model_confidence"], 2),
+                    "reliability_score": round(result["reliability_score"], 2),
+                    "visual_consistency": "N/A",
+                    "metadata_integrity": result["metadata_integrity"],
+                    "artifact_detection": result["artifact_detection"],
+                })
             else:
                 results.append({
                     "filename": file.filename,
@@ -525,47 +587,60 @@ def generate_pdf():
 
 @app.route("/api/analyze/audio", methods=["POST"])
 def analyze_audio():
-    """Mock endpoint for Audio Forensics."""
+    """Run full forensic analysis on an uploaded audio file."""
     if "file" not in request.files:
-        return jsonify({"error": "No file provided"}), 400
+        return jsonify({"error": "No audio file provided"}), 400
     file = request.files["file"]
-    
-    # Mock data to match the UI image
-    return jsonify({
-        "prediction": "REAL",
-        "model_confidence": 98.2,
-        "reliability_score": 87.6,
-        "filename": file.filename,
-        "proofs": {
-            "Voice Clone Probability": "23%",
-            "Speaker Verification": "Match",
-            "Deepfake Audio Detection": "Low",
-            "Noise Manipulation": "Not Detected",
-            "Audio Integrity": "High"
-        }
-    })
+    if not file.filename:
+        return jsonify({"error": "Empty filename"}), 400
+
+    try:
+        result = run_forensic_analysis_audio(file.stream, filename=file.filename)
+        return jsonify(result)
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": f"Audio forensic analysis failed: {e}"}), 500
+
 
 @app.route("/api/analyze/text", methods=["POST"])
 def analyze_text():
-    """Mock endpoint for Text Evidence Analysis."""
-    if "file" not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-    file = request.files["file"]
-    
-    # Mock data to match the UI image
-    return jsonify({
-        "prediction": "REAL",
-        "model_confidence": 95.0,
-        "reliability_score": 89.0,
-        "filename": file.filename,
-        "proofs": {
-            "Sentiment": "Neutral",
-            "Threat Detection": "Low",
-            "Toxicity": "Low",
-            "Fake News Indicator": "Medium",
-            "AI Generated Probability": "18%"
-        }
-    })
+    """Run full forensic analysis on text evidence (direct text or document file)."""
+    # Check if text provided in JSON body
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+        text_content = data.get("text", "")
+        filename = data.get("filename", "text_evidence.txt")
+        if text_content and text_content.strip():
+            try:
+                result = run_forensic_analysis_text(text_content.strip(), filename=filename)
+                return jsonify(result)
+            except Exception as e:
+                traceback.print_exc()
+                return jsonify({"error": f"Text forensic analysis failed: {e}"}), 500
+
+    # Check if text provided in form data
+    if "text" in request.form and request.form["text"].strip():
+        text_content = request.form["text"].strip()
+        filename = request.form.get("filename", "text_evidence.txt")
+        try:
+            result = run_forensic_analysis_text(text_content, filename=filename)
+            return jsonify(result)
+        except Exception as e:
+            traceback.print_exc()
+            return jsonify({"error": f"Text forensic analysis failed: {e}"}), 500
+
+    # Check if document file uploaded
+    if "file" in request.files:
+        file = request.files["file"]
+        if file.filename:
+            try:
+                result = run_forensic_analysis_text(file.stream, filename=file.filename)
+                return jsonify(result)
+            except Exception as e:
+                traceback.print_exc()
+                return jsonify({"error": f"Document text analysis failed: {e}"}), 500
+
+    return jsonify({"error": "No text content or document file provided"}), 400
 
 @app.route("/api/dashboard/stats", methods=["GET"])
 def dashboard_stats():

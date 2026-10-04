@@ -448,3 +448,203 @@ body {
   cursor: pointer;
 }
 
+/* Audio & Text Forensics Component Styles */
+.text-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  width: 100%;
+}
+.text-evidence-area {
+  width: 100%;
+  min-height: 110px;
+  background: var(--bg-deep);
+  border: 1px solid var(--bg-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.text-evidence-area:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(0, 216, 239, 0.15);
+}
+.text-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.text-char-count {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+.text-btn-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.btn-sample {
+  background: rgba(0, 216, 239, 0.08);
+  border: 1px solid rgba(0, 216, 239, 0.25);
+  color: var(--text-primary);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-sample:hover {
+  background: rgba(0, 216, 239, 0.2);
+  border-color: var(--cyan);
+  color: #fff;
+}
+.btn-sample.amber:hover {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: var(--amber);
+}
+.btn-analyze-text {
+  background: var(--cyan);
+  color: #040b14;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-analyze-text:hover {
+  background: #2fe4f8;
+  box-shadow: 0 0 12px rgba(0, 216, 239, 0.4);
+}
+
+/* Audio Preview Components */
+.audio-preview-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+.audio-player-card {
+  background: var(--bg-deep);
+  border: 1px solid var(--bg-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.audio-player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cyan);
+}
+.spectrogram-box {
+  background: #0a1120;
+  border-radius: 8px;
+  border: 1px solid var(--bg-border);
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 16/9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.spectrogram-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Text Preview Components */
+.text-preview-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+.text-preview-card {
+  background: var(--bg-deep);
+  border: 1px solid var(--bg-border);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.text-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cyan);
+}
+.text-preview-body {
+  background: #080f1e;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text-primary);
+  max-height: 110px;
+  overflow-y: auto;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.text-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.t-metric {
+  background: var(--bg-card);
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--bg-border);
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.t-metric .lbl {
+  color: var(--text-secondary);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.badge {
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(0, 216, 239, 0.15);
+  color: var(--cyan);
+}
+.badge.green { background: rgba(14, 219, 141, 0.15); color: var(--green); }
+.badge.red { background: rgba(255, 59, 78, 0.15); color: var(--red); }
+.badge.amber { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+
+.audio-sample-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: center;
+}
+

@@ -135,21 +135,47 @@
             
             <!-- UPLOAD PANEL -->
             <div class="panel panel-upload">
-                <div class="panel-title">UPLOAD EVIDENCE</div>
+                <div class="panel-title" id="upload-panel-title">UPLOAD EVIDENCE</div>
+                
+                <!-- File Drag & Drop Area -->
                 <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">
+                    <div class="upload-icon" id="uploadIcon">
                         <svg viewBox="0 0 24 24" style="width:48px;height:48px"><path fill="currentColor" d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" /></svg>
                     </div>
                     <div id="uploadText">Drag & Drop Evidence Here<br>or</div>
                     <div id="processing-timer" style="font-size: 12px; color: var(--cyan); margin-top: 8px; font-weight: bold; min-height: 16px;"></div>
-                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                    <button class="upload-btn" id="btn-browse" onclick="document.getElementById('fileInput').click()">Browse Files</button>
                     <input type="file" id="fileInput" style="display:none" multiple>
                 </div>
+
+                <!-- Interactive Direct Text Input Area (Active in Text Mode) -->
+                <div id="textInputContainer" class="text-input-container hidden">
+                    <textarea id="textEvidenceInput" class="text-evidence-area" placeholder="Type or paste text evidence here (emails, transcripts, threats, ransom notes, statements) to analyze for AI authorship (ChatGPT/Claude/Gemini), threats, toxicity, and sentiment..."></textarea>
+                    <div class="text-action-bar">
+                        <div class="text-char-count" id="textWordCount">0 words | 0 chars</div>
+                        <div class="text-btn-group">
+                            <button class="btn-sample" onclick="loadSampleText('ai')">Sample AI Text</button>
+                            <button class="btn-sample amber" onclick="loadSampleText('threat')">Sample Threat</button>
+                            <button class="btn-sample" onclick="loadSampleText('human')">Sample Human</button>
+                            <button class="btn-analyze-text" onclick="analyzeDirectText()">
+                                <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,6V11H6V13H11V18H13V13H18V11H13V6H11Z"/></svg>
+                                Analyze Text
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Audio Sample Launcher (Active in Audio Mode) -->
+                <div id="audioSampleBar" class="audio-sample-bar hidden">
+                    <button class="btn-sample" onclick="loadSampleAudio('ai')">Test Sample AI Voice Clone</button>
+                    <button class="btn-sample" onclick="loadSampleAudio('human')">Test Sample Human Audio</button>
+                </div>
+
                 <div class="upload-types">
                     <div class="type-item active" id="type-image"><i><svg viewBox="0 0 24 24" width="16"><path fill="currentColor" d="M19,19H5V5H19M19,3H5C3.89,3 3,3.89 3,5V19C3,20.1 3.89,21 5,21H19C20.11,21 21,20.1 21,19V5C21,3.89 20.11,3 19,3M13.96,12.29L11.21,15.83L9.25,13.47L6.5,17H17.5" /></svg></i> Images</div>
                     <div class="type-item" id="type-video"><i><svg viewBox="0 0 24 24" width="16"><path fill="currentColor" d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z" /></svg></i> Videos</div>
-                    <div class="type-item" id="type-audio"><i><svg viewBox="0 0 24 24" width="16"><path fill="currentColor" d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2" /></svg></i> Audio</div>
-                    <div class="type-item" id="type-text"><i><svg viewBox="0 0 24 24" width="16"><path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20" /></svg></i> Documents</div>
+                    <div class="type-item" id="type-audio"><i><svg viewBox="0 0 24 24" width="16"><path fill="currentColor" d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z" /></svg></i> Audio</div>
+                    <div class="type-item" id="type-text"><i><svg viewBox="0 0 24 24" width="16"><path fill="currentColor" d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20" /></svg></i> Text / Docs</div>
                 </div>
             </div>
 
@@ -168,16 +194,18 @@
                 <div class="score-details">
                     <div class="score-row"><span>Authenticity Score</span> <span class="score-value" id="score-auth">0%</span></div>
                     <div class="score-row"><span>AI Generation Probability</span> <span class="score-value" id="score-ai">0%</span></div>
-                    <div class="score-row"><span>Tampering Probability</span> <span class="score-value" id="score-tampering">0%</span></div>
-                    <div class="score-row"><span>Metadata Integrity</span> <span class="score-value" id="score-meta">91%</span></div>
+                    <div class="score-row"><span>Tampering / Threat Risk</span> <span class="score-value" id="score-tampering">0%</span></div>
+                    <div class="score-row"><span>Evidence Integrity</span> <span class="score-value" id="score-meta">Verified</span></div>
                 </div>
-                <button class="view-btn">View Full Analysis -></button>
+                <button class="view-btn" onclick="scrollToReport()">View Full Analysis -></button>
             </div>
 
             <!-- EVIDENCE PREVIEW & XAI -->
             <div class="panel panel-preview" id="panel-preview">
                 <div class="panel-title">EVIDENCE PREVIEW & EXPLAINABLE AI</div>
-                <div class="preview-images">
+                
+                <!-- Image & Video Previews -->
+                <div class="preview-images" id="image-preview-group">
                     <div class="img-box">
                         <div class="img-label">Original</div>
                         <img id="preview-orig" src="" alt="">
@@ -187,14 +215,43 @@
                         <img id="preview-ai" src="" alt="">
                     </div>
                 </div>
+
+                <!-- Dedicated Audio Forensic Preview -->
+                <div class="audio-preview-group hidden" id="audio-preview-group">
+                    <div class="audio-player-card">
+                        <div class="audio-player-header">
+                            <span id="audio-filename-display">Evidence Audio Stream</span>
+                            <span class="badge" id="audio-format-badge">PCM 16-bit</span>
+                        </div>
+                        <audio id="audio-playback" controls style="width: 100%; margin-top: 6px;"></audio>
+                    </div>
+                    <div class="spectrogram-box">
+                        <div class="img-label" style="color:var(--cyan)">Acoustic Spectrogram & Harmonics</div>
+                        <img id="preview-spectrogram" src="" alt="Acoustic Spectrogram">
+                    </div>
+                </div>
+
+                <!-- Dedicated Text Forensic Preview -->
+                <div class="text-preview-group hidden" id="text-preview-group">
+                    <div class="text-preview-card">
+                        <div class="text-preview-header">
+                            <span id="text-filename-display">Text Evidence Linguistic Profile</span>
+                            <span class="badge" id="text-sentiment-badge">Neutral</span>
+                        </div>
+                        <div class="text-preview-body" id="text-preview-content">Awaiting text evidence input...</div>
+                        <div class="text-metrics-row">
+                            <div class="t-metric"><span class="lbl">Burstiness:</span><b id="t-burst" style="color:var(--cyan);">0.000</b></div>
+                            <div class="t-metric"><span class="lbl">Lexical Diversity (TTR):</span><b id="t-ttr" style="color:var(--green);">0.000</b></div>
+                            <div class="t-metric"><span class="lbl">AI Cliché Hits:</span><b id="t-markers" style="color:var(--amber);">0</b></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="preview-analysis">
                     <div class="suspicious-list">
                         <div style="color:var(--text-secondary); font-size:11px; margin-bottom:8px;">Why Suspicious?</div>
                         <ul id="sus-list" style="padding:0">
-                            <li>Unnatural texture patterns detected</li>
-                            <li>Inconsistent lighting & shadows</li>
-                            <li>GAN artifacts in high frequency regions</li>
-                            <li>Compression anomalies detected</li>
+                            <li>Analysis pending evidence submission</li>
                         </ul>
                     </div>
                     <div class="confidence-box">
@@ -211,13 +268,13 @@
             <div class="panel panel-metadata" id="panel-metadata">
                 <div class="panel-title">METADATA VERIFICATION</div>
                 <div class="kv-list">
-                    <div class="kv-row"><span class="kv-key">Camera Model</span><span class="kv-val cyan" id="meta-camera">Canon EOS 80D</span></div>
+                    <div class="kv-row"><span class="kv-key">Origin / Hardware</span><span class="kv-val cyan" id="meta-camera">Verified Device</span></div>
                     <div class="kv-row"><span class="kv-key">GPS Coordinates</span><span class="kv-val green" id="meta-gps">28.6139* N, 77.2090* E ~</span></div>
-                    <div class="kv-row"><span class="kv-key">Timestamp</span><span class="kv-val green" id="meta-time">15 Aug 2026, 10:24:31 ~</span></div>
+                    <div class="kv-row"><span class="kv-key">Timestamp</span><span class="kv-val green" id="meta-time">Synchronized ~</span></div>
                     <div class="kv-row"><span class="kv-key">Metadata Integrity</span><span class="kv-val green" id="meta-integrity">Verified ~</span></div>
                 </div>
                 <div style="margin-top:20px; color:var(--green); font-size:11px; display:flex; gap:6px;">
-                    <svg viewBox="0 0 24 24" width="14"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/></svg> No metadata tampering detected
+                    <svg viewBox="0 0 24 24" width="14"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/></svg> No tampering detected
                 </div>
             </div>
 
@@ -225,13 +282,12 @@
             <div class="panel panel-chain" id="panel-chain">
                 <div class="panel-title">CHAIN OF CUSTODY</div>
                 <div class="kv-list">
-                    <div class="kv-row"><span class="kv-key">Evidence ID</span><span class="kv-val">EVD-2026-00124</span></div>
-                    <div class="kv-row"><span class="kv-key">SHA256 Hash</span><span class="kv-val cyan">a4f8b7c32d...9f2a1d</span></div>
-                    <div class="kv-row"><span class="kv-key">Uploaded By</span><span class="kv-val">Inv. Arjun Verma</span></div>
-                    <div class="kv-row"><span class="kv-key">Upload Time</span><span class="kv-val">15 Aug 2026, 10:24:31</span></div>
-                    <div class="kv-row"><span class="kv-key">Verification Status</span><span class="kv-val green">Verified ~</span></div>
+                    <div class="kv-row"><span class="kv-key">Evidence ID</span><span class="kv-val" id="chain-evidence-id">EVD-2026-00124</span></div>
+                    <div class="kv-row"><span class="kv-key">SHA256 Hash</span><span class="kv-val cyan" id="chain-sha256">a4f8b7c32d...9f2a1d</span></div>
+                    <div class="kv-row"><span class="kv-key">Investigator</span><span class="kv-val">Forensic Examiner</span></div>
+                    <div class="kv-row"><span class="kv-key">Audit Status</span><span class="kv-val green">Cryptographically Sealed ~</span></div>
                 </div>
-                <button class="view-btn">View Full Chain -></button>
+                <button class="view-btn" onclick="scrollToReport()">View Full Chain -></button>
             </div>
 
             <!-- TEXT EVIDENCE -->
@@ -241,24 +297,29 @@
                     <div class="kv-row"><span class="kv-key">Sentiment</span><span class="kv-val" id="text-sentiment">Neutral</span></div>
                     <div class="kv-row"><span class="kv-key">Threat Detection</span><span class="kv-val green" id="text-threat">Low</span></div>
                     <div class="kv-row"><span class="kv-key">Toxicity</span><span class="kv-val green" id="text-toxicity">Low</span></div>
-                    <div class="kv-row"><span class="kv-key">Fake News Indicator</span><span class="kv-val amber" id="text-fake">Medium</span></div>
-                    <div class="kv-row"><span class="kv-key">AI Generated Probability</span><span class="kv-val" id="text-ai">18%</span></div>
+                    <div class="kv-row"><span class="kv-key">Fake News Indicator</span><span class="kv-val amber" id="text-fake">Low</span></div>
+                    <div class="kv-row"><span class="kv-key">AI Generated Probability</span><span class="kv-val" id="text-ai">0%</span></div>
+                    <div class="kv-row"><span class="kv-key">Sentence Burstiness</span><span class="kv-val cyan" id="text-burstiness">N/A</span></div>
+                    <div class="kv-row"><span class="kv-key">Lexical Diversity (TTR)</span><span class="kv-val cyan" id="text-ttr-val">N/A</span></div>
                 </div>
-                <button class="view-btn">Analyze Text -></button>
+                <button class="view-btn" onclick="activateTextClassifier()">Open Text Classifier -></button>
             </div>
 
             <!-- AUDIO FORENSICS -->
             <div class="panel panel-audio" id="panel-audio">
                 <div class="panel-title">AUDIO FORENSICS</div>
                 <div class="kv-list">
-                    <div class="kv-row"><span class="kv-key">Voice Clone Probability</span><span class="kv-val" id="audio-clone">23%</span></div>
+                    <div class="kv-row"><span class="kv-key">Voice Clone Probability</span><span class="kv-val" id="audio-clone">0%</span></div>
                     <div class="kv-row"><span class="kv-key">Speaker Verification</span><span class="kv-val green" id="audio-speaker">Match</span></div>
-                    <div class="kv-row"><span class="kv-key">Deepfake Audio Detection</span><span class="kv-val green" id="audio-deepfake">Low</span></div>
+                    <div class="kv-row"><span class="kv-key">Deepfake Audio Detection</span><span class="kv-val green" id="audio-deepfake">Low Risk</span></div>
                     <div class="kv-row"><span class="kv-key">Noise Manipulation</span><span class="kv-val green" id="audio-noise">Not Detected</span></div>
-                    <div class="kv-row"><span class="kv-key">Audio Integrity</span><span class="kv-val green" id="audio-integrity">High</span></div>
+                    <div class="kv-row"><span class="kv-key">Audio Integrity</span><span class="kv-val green" id="audio-integrity">Natural</span></div>
+                    <div class="kv-row"><span class="kv-key">Spectral Rolloff (85%)</span><span class="kv-val cyan" id="audio-rolloff">N/A</span></div>
+                    <div class="kv-row"><span class="kv-key">Noise Floor Level</span><span class="kv-val cyan" id="audio-noise-floor">N/A</span></div>
                 </div>
-                <button class="view-btn">Analyze Audio -></button>
+                <button class="view-btn" onclick="activateAudioClassifier()">Open Audio Classifier -></button>
             </div>
+
 
             <!-- MULTI EVIDENCE RADAR -->
             <div class="panel panel-radar" id="panel-radar">
