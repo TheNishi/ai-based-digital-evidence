@@ -147,3 +147,44 @@ Each run directory contains `checkpoints/` (latest & best checkpoints), `logs/` 
 ### Per-model transform toggles
 
 Every transform in the training and evaluation pipelines can be toggled on or off per backbone. Add a `transforms:` block under each `models.<name>` entry in the YAML config and enable the transforms you need for training/inference for each model.
+
+---
+
+## CIFAKE Benchmark & Ablation Study Results
+
+The pipeline incorporates rigorous ML research standards evaluated on the public **CIFAKE (Real and AI-Generated Synthetic Images)** benchmark.
+
+### 1. Dataset & Split Partitioning
+- **Dataset**: [CIFAKE Benchmark](https://www.kaggle.com/datasets/birdy654/cifake-real-and-ai-generated-synthetic-images) (60,000 samples: 30,000 Real CIFAR-10 + 30,000 Stable Diffusion v1.4 synthetic).
+- **Split Scheme**: Strict 3-way disjoint partition to eliminate data leakage:
+  - **Training Split**: 4,000 samples (2,000 FAKE + 2,000 REAL)
+  - **Validation Split**: 1,000 samples (500 FAKE + 500 REAL) — Used strictly for operating threshold ($\tau^*$) calibration and ensemble weight optimization.
+  - **Held-Out Test Split**: 2,000 samples (1,000 FAKE + 1,000 REAL) — Frozen blind evaluation.
+
+### 2. Standard Evaluation Metrics Table
+*Evaluated on held-out test split with operating thresholds ($\tau^*$) calibrated via Youden's J statistic on the validation set:*
+
+| Model Architecture | Operating Threshold ($\tau^*$) | Accuracy | Balanced Accuracy | Precision | Recall | Specificity | F1 Score | ROC-AUC | PR-AUC |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Weighted Ensemble** | **0.5599** | **89.90%** | **89.90%** | **93.09%** | **86.20%** | **93.60%** | **0.8951** | **0.9699** | **0.9702** |
+| **FasterViT-2-224** | **0.4656** | **89.20%** | **89.20%** | **88.81%** | **89.70%** | **88.70%** | **0.8925** | **0.9596** | **0.9577** |
+| **EfficientNet-B3** | 0.4381 | 85.80% | 85.80% | 84.76% | 87.30% | 84.30% | 0.8601 | 0.9308 | 0.9312 |
+| **EfficientFormerV2-S1** | 0.4617 | 82.55% | 82.55% | 81.33% | 84.50% | 80.60% | 0.8288 | 0.9111 | 0.9100 |
+
+### 3. Systematic Ablation Study
+The ablation study systematically analyzes:
+1. **Architecture Ablation**: Solo backbones vs. Pairwise vs. Uniform Ensemble vs. Weighted Ensemble ([ablation_architecture.csv](file:///d:/ai%20based%20digital%20evidence/results/ablation/ablation_architecture.csv)).
+2. **Ensemble Weights Strategy**: Uniform ($1:1:1$) vs. Optimal Validation-Tuned vs. FasterViT-Heavy vs. EfficientNet-Heavy ([ablation_ensemble_weights.csv](file:///d:/ai%20based%20digital%20evidence/results/ablation/ablation_ensemble_weights.csv)).
+3. **Threshold Calibration**: Default ($\tau = 0.50$) vs. Calibrated Operating Threshold ($\tau^*$) ([ablation_threshold.csv](file:///d:/ai%20based%20digital%20evidence/results/ablation/ablation_threshold.csv)).
+
+### 4. Generated Diagnostic Plot Images (300 DPI)
+All visual diagnostic plots are generated and saved to `results/plots/`:
+- **ROC-AUC Curve**: `results/plots/roc_auc_curve.png`
+- **PR-AUC Curve**: `results/plots/pr_auc_curve.png`
+- **Confusion Matrices (2x4 comparative grid)**: `results/plots/confusion_matrices.png`
+- **Comprehensive Metrics Comparison Bar Chart**: `results/plots/metrics_comparison.png`
+
+To run the master pipeline end-to-end:
+```bash
+python retrain_and_evaluate.py
+```

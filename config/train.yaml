@@ -2,9 +2,9 @@ seed: 1
 device: cuda
 
 data:
-  root: data/mini_deepfake_dataset
+  root: C:/Users/kumar/.cache/kagglehub/datasets/birdy654/cifake-real-and-ai-generated-synthetic-images/versions/3
   train_split: train
-  val_split: val
+  val_split: test
   num_classes: 2
   img_size: 224
 

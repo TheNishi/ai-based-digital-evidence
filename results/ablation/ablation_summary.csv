@@ -1,0 +1,18 @@
+Model,Operating_Threshold,Accuracy,Balanced_Accuracy,Precision,Recall,Specificity,F1,ROC_AUC,PR_AUC,TP,FP,TN,FN,Section
+EfficientNet-B3 (solo),0.4381,0.858,0.858,0.8476,0.873,0.843,0.8601,0.9308,0.9312,873,157,843,127,A_Architecture
+EfficientFormerV2-S1 (solo),0.4617,0.8255,0.8255,0.8133,0.845,0.806,0.8288,0.9111,0.91,845,194,806,155,A_Architecture
+FasterViT-2-224 (solo),0.4656,0.892,0.892,0.8881,0.897,0.887,0.8925,0.9596,0.9577,897,113,887,103,A_Architecture
+Pairwise Ensemble (FV + EN),0.5,0.9,0.9,0.9049,0.894,0.906,0.8994,0.9658,0.9664,894,94,906,106,A_Architecture
+Full Ensemble (Uniform 1:1:1),0.5,0.9095,0.9095,0.9157,0.902,0.917,0.9088,0.9697,0.9703,902,83,917,98,A_Architecture
+Full Ensemble (Optimal Weighted),0.5599,0.899,0.899,0.9309,0.862,0.936,0.8951,0.9699,0.9702,862,64,936,138,A_Architecture
+Uniform (33.3% / 33.3% / 33.3%),0.5,0.9095,0.9095,0.9157,0.902,0.917,0.9088,0.9697,0.9703,902,83,917,98,B_EnsembleWeights
+Optimal Weighted (Val Tuned),0.5,0.906,0.906,0.9126,0.898,0.914,0.9052,0.9699,0.9702,898,86,914,102,B_EnsembleWeights
+FasterViT-Heavy (70% / 20% / 10%),0.5,0.907,0.907,0.9153,0.897,0.917,0.9061,0.9689,0.9688,897,83,917,103,B_EnsembleWeights
+EfficientNet-Heavy (60% / 30% / 10%),0.5,0.89,0.89,0.8955,0.883,0.897,0.8892,0.9627,0.9638,883,103,897,117,B_EnsembleWeights
+EfficientFormer-Heavy (60% / 25% / 15%),0.5,0.894,0.894,0.894,0.894,0.894,0.894,0.9607,0.9615,894,106,894,106,B_EnsembleWeights
+FasterViT-2-224 @ Default τ=0.50,0.5,0.889,0.889,0.8978,0.878,0.9,0.8878,0.9596,0.9577,878,100,900,122,C_ThresholdOptimization
+FasterViT-2-224 @ Frozen Val τ*=0.466,0.4656,0.892,0.892,0.8881,0.897,0.887,0.8925,0.9596,0.9577,897,113,887,103,C_ThresholdOptimization
+Weighted Ensemble @ Default τ=0.50,0.5,0.906,0.906,0.9126,0.898,0.914,0.9052,0.9699,0.9702,898,86,914,102,C_ThresholdOptimization
+Weighted Ensemble @ Frozen Val τ*=0.560,0.5599,0.899,0.899,0.9309,0.862,0.936,0.8951,0.9699,0.9702,862,64,936,138,C_ThresholdOptimization
+EfficientNet-B3 @ Default τ=0.50,0.5,0.861,0.861,0.8661,0.854,0.868,0.86,0.9308,0.9312,854,132,868,146,C_ThresholdOptimization
+EfficientNet-B3 @ Frozen Val τ*=0.438,0.4381,0.858,0.858,0.8476,0.873,0.843,0.8601,0.9308,0.9312,873,157,843,127,C_ThresholdOptimization

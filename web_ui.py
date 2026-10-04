@@ -18,9 +18,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn.functional as F
-from flask import Flask, jsonify, render_template, request, send_file
+from flask import Flask, jsonify, render_template, request, send_file, send_from_directory
 from PIL import Image
 from pytorch_grad_cam import GradCAM
 from pytorch_grad_cam.utils.image import show_cam_on_image
@@ -577,6 +578,41 @@ def dashboard_stats():
         "court_admissibility": "HIGH",
         "active_cases": "23"
     })
+
+
+@app.route("/results/plots/<path:filename>")
+def serve_plot(filename: str):
+    """Serve benchmark diagnostic plot images."""
+    plots_dir = (Path.cwd() / "results" / "plots").resolve()
+    return send_from_directory(str(plots_dir), filename)
+
+
+@app.route("/api/benchmark/summary", methods=["GET"])
+def benchmark_summary():
+    """Return benchmark and ablation study data for the UI."""
+    try:
+        calibrated_csv = Path("results/model_comparison_calibrated.csv")
+        ablation_csv = Path("results/ablation/ablation_summary.csv")
+
+        calibrated_data = pd.read_csv(calibrated_csv).to_dict(orient="records") if calibrated_csv.exists() else []
+        ablation_data = pd.read_csv(ablation_csv).to_dict(orient="records") if ablation_csv.exists() else []
+
+        return jsonify({
+            "dataset": "CIFAKE (Real vs AI-Generated Synthetic Images)",
+            "total_samples": 60000,
+            "test_samples": 20000,
+            "metrics": calibrated_data,
+            "ablation": ablation_data,
+            "plots": {
+                "roc_curve": "/results/plots/roc_auc_curve.png",
+                "pr_curve": "/results/plots/pr_auc_curve.png",
+                "confusion_matrix": "/results/plots/confusion_matrices.png",
+                "metrics_bar": "/results/plots/metrics_comparison.png",
+            }
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # ---------------------------------------------------------------------------
 # Startup

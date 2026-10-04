@@ -497,3 +497,92 @@ async function generateReport() {
         document.getElementById('btn-report').disabled = false;
     }
 }
+
+// ---------------------------------------------------------------------------
+// Benchmark & Ablation Study Modal Functions
+// ---------------------------------------------------------------------------
+
+function openBenchmarkModal(e) {
+    if (e) e.preventDefault();
+    const modal = document.getElementById('benchmarkModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        loadBenchmarkData();
+    }
+}
+
+function closeBenchmarkModal() {
+    const modal = document.getElementById('benchmarkModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+function switchBenchmarkTab(tabName) {
+    // Update active tab button
+    document.querySelectorAll('.b-tab').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Hide all tabs
+    ['metrics', 'plots', 'ablation', 'dataset'].forEach(t => {
+        const el = document.getElementById(`btab-${t}`);
+        if (el) el.classList.add('hidden');
+    });
+
+    // Show selected tab
+    const target = document.getElementById(`btab-${tabName}`);
+    if (target) target.classList.remove('hidden');
+}
+
+async function loadBenchmarkData() {
+    try {
+        const res = await fetch('/api/benchmark/summary');
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        if (data.metrics && data.metrics.length > 0) {
+            const tbody = document.getElementById('benchmark-metrics-tbody');
+            if (tbody) {
+                tbody.innerHTML = data.metrics.map(m => {
+                    const thr = m.Operating_Threshold !== undefined ? Number(m.Operating_Threshold).toFixed(4) : (m.Threshold !== undefined ? Number(m.Threshold).toFixed(4) : '0.5000');
+                    return `
+                    <tr style="${m.Model.includes('Ensemble') ? 'background:rgba(0, 216, 239, 0.08); font-weight:600;' : ''}">
+                        <td><b style="${m.Model.includes('FasterViT') ? 'color:var(--cyan)' : (m.Model.includes('Ensemble') ? 'color:var(--green)' : '')}">${m.Model}</b></td>
+                        <td>${thr}</td>
+                        <td><b>${(m.Accuracy * 100).toFixed(2)}%</b></td>
+                        <td>${(m.Precision * 100).toFixed(2)}%</td>
+                        <td>${(m.Recall * 100).toFixed(2)}%</td>
+                        <td>${(m.Specificity * 100).toFixed(2)}%</td>
+                        <td><b>${Number(m.F1).toFixed(4)}</b></td>
+                        <td><b>${Number(m.ROC_AUC).toFixed(4)}</b></td>
+                        <td><b>${Number(m.PR_AUC).toFixed(4)}</b></td>
+                    </tr>
+                `}).join('');
+            }
+        }
+
+        if (data.ablation && data.ablation.length > 0) {
+            const atbody = document.getElementById('benchmark-ablation-tbody');
+            if (atbody) {
+                atbody.innerHTML = data.ablation.map(a => {
+                    const sec = a.Section ? a.Section.replace(/^[A-Z]_/, '') : 'Ablation';
+                    return `
+                    <tr style="${a.Model.includes('Ensemble') ? 'background:rgba(0, 216, 239, 0.04);' : ''}">
+                        <td>${sec}</td>
+                        <td><b>${a.Model}</b></td>
+                        <td><b>${(a.Accuracy * 100).toFixed(2)}%</b></td>
+                        <td>${(a.Precision * 100).toFixed(2)}%</td>
+                        <td>${(a.Recall * 100).toFixed(2)}%</td>
+                        <td>${(a.Specificity * 100).toFixed(2)}%</td>
+                        <td>${Number(a.F1).toFixed(4)}</td>
+                        <td><b>${Number(a.ROC_AUC).toFixed(4)}</b></td>
+                        <td><b>${Number(a.PR_AUC).toFixed(4)}</b></td>
+                    </tr>
+                `}).join('');
+            }
+        }
+    } catch (err) {
+        console.warn('Could not refresh live benchmark data:', err);
+    }
+}
+

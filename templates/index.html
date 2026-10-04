@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,6 +49,9 @@
             </a>
             <a href="#" class="nav-item">
                 <svg viewBox="0 0 24 24"><path d="M17,14H19V17H22V19H19V22H17V19H14V17H17V14M12.18,9A2,2 0 0,0 14.12,7.44L15.08,7L14.12,6.56A2,2 0 0,0 12.18,5A2,2 0 0,0 10.24,6.56L9.28,7L10.24,7.44A2,2 0 0,0 12.18,9M7,12.28A2,2 0 0,0 8.35,10.24L9.5,9.75L8.35,9.26A2,2 0 0,0 7,7.22A2,2 0 0,0 5.65,9.26L4.5,9.75L5.65,10.24A2,2 0 0,0 7,12.28M12.18,11.72A3.33,3.33 0 0,0 9.22,14.11L7.5,14.83L9.22,15.56A3.33,3.33 0 0,0 12.18,17.94A3.33,3.33 0 0,0 15.14,15.56L16,15.2V13.06L15.14,14.11A3.33,3.33 0 0,0 12.18,11.72Z" /></svg> Multi-Evidence Case Analysis
+            </a>
+            <a href="#" class="nav-item" id="nav-benchmark" onclick="openBenchmarkModal(event)">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.59L3.41,18L9.41,12L13.41,16L19.71,9.71L22,12V6H16Z"/></svg> Dataset Benchmark & Ablation
             </a>
         </nav>
         <div class="system-status">
@@ -372,11 +376,177 @@
             
         </div>
         
-        <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-secondary); margin-top:20px;">
-            <div>(c) 2026 AI Digital Evidence Intelligence Platform. All rights reserved.</div>
-            <div>Secure ~ Encrypted ~ Forensic Grade</div>
+    <!-- BENCHMARK & ABLATION STUDY MODAL -->
+    <div class="modal-overlay hidden" id="benchmarkModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.59L3.41,18L9.41,12L13.41,16L19.71,9.71L22,12V6H16Z"/></svg>
+                    CIFAKE DATASET BENCHMARK & ABLATION STUDY
+                </div>
+                <button class="modal-close" onclick="closeBenchmarkModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="benchmark-tabs">
+                    <button class="b-tab active" onclick="switchBenchmarkTab('metrics')">Model Comparison Metrics</button>
+                    <button class="b-tab" onclick="switchBenchmarkTab('plots')">Diagnostic Visual Plots (Images)</button>
+                    <button class="b-tab" onclick="switchBenchmarkTab('ablation')">Ablation Study Matrix</button>
+                    <button class="b-tab" onclick="switchBenchmarkTab('dataset')">Dataset Info</button>
+                </div>
+
+                <!-- TAB 1: METRICS -->
+                <div id="btab-metrics">
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                        Calibrated forensic classification and calibration metrics on 2,000 stratified CIFAKE test samples (1,000 FAKE + 1,000 REAL).
+                    </div>
+                    <table class="benchmark-table">
+                        <thead>
+                            <tr>
+                                <th>Model Architecture</th>
+                                <th>Threshold (τ*)</th>
+                                <th>Accuracy</th>
+                                <th>Precision (Fake)</th>
+                                <th>Recall (Fake)</th>
+                                <th>Specificity (Real)</th>
+                                <th>F1-Score</th>
+                                <th>ROC-AUC</th>
+                                <th>PR-AUC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="benchmark-metrics-tbody">
+                            <tr style="background: rgba(0, 216, 239, 0.08); font-weight:600;">
+                                <td><b style="color:var(--green)">Weighted Ensemble</b></td>
+                                <td>0.5599</td>
+                                <td><b>89.90%</b></td>
+                                <td><b>93.09%</b></td>
+                                <td><b>86.20%</b></td>
+                                <td><b>93.60%</b></td>
+                                <td><b>0.8951</b></td>
+                                <td><b>0.9699</b></td>
+                                <td><b>0.9702</b></td>
+                            </tr>
+                            <tr>
+                                <td><b style="color:var(--cyan)">FasterViT-2-224</b></td>
+                                <td>0.4656</td>
+                                <td><b>89.20%</b></td>
+                                <td><b>88.81%</b></td>
+                                <td><b>89.70%</b></td>
+                                <td><b>88.70%</b></td>
+                                <td><b>0.8925</b></td>
+                                <td><b>0.9596</b></td>
+                                <td><b>0.9577</b></td>
+                            </tr>
+                            <tr>
+                                <td><b>EfficientNet-B3</b></td>
+                                <td>0.4381</td>
+                                <td>85.80%</td>
+                                <td>84.76%</td>
+                                <td>87.30%</td>
+                                <td>84.30%</td>
+                                <td>0.8601</td>
+                                <td>0.9308</td>
+                                <td>0.9312</td>
+                            </tr>
+                            <tr>
+                                <td><b>EfficientFormerV2-S1</b></td>
+                                <td>0.4617</td>
+                                <td>82.55%</td>
+                                <td>81.33%</td>
+                                <td>84.50%</td>
+                                <td>80.60%</td>
+                                <td>0.8288</td>
+                                <td>0.9111</td>
+                                <td>0.9100</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- TAB 2: PLOTS -->
+                <div id="btab-plots" class="hidden">
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">
+                        Publication-quality 300-DPI visual diagnostic plots generated by the evaluation engine:
+                    </div>
+                    <div class="plot-grid">
+                        <div class="plot-card">
+                            <div class="plot-card-title">1. Receiver Operating Characteristic (ROC-AUC)</div>
+                            <img src="/results/plots/roc_auc_curve.png" alt="ROC-AUC Curve" class="plot-img" onclick="window.open(this.src)">
+                        </div>
+                        <div class="plot-card">
+                            <div class="plot-card-title">2. Precision-Recall (PR-AUC) Curve</div>
+                            <img src="/results/plots/pr_auc_curve.png" alt="PR-AUC Curve" class="plot-img" onclick="window.open(this.src)">
+                        </div>
+                        <div class="plot-card">
+                            <div class="plot-card-title">3. Confusion Matrix Analysis (Default vs Calibrated)</div>
+                            <img src="/results/plots/confusion_matrices.png" alt="Confusion Matrices" class="plot-img" onclick="window.open(this.src)">
+                        </div>
+                        <div class="plot-card">
+                            <div class="plot-card-title">4. Comprehensive Model Comparison Bar Chart</div>
+                            <img src="/results/plots/metrics_comparison.png" alt="Metrics Comparison" class="plot-img" onclick="window.open(this.src)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: ABLATION -->
+                <div id="btab-ablation" class="hidden">
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+                        Systematic ablation study exploring Architecture paradigms, Ensemble Weight Strategies, and Threshold calibration:
+                    </div>
+                    <table class="benchmark-table">
+                        <thead>
+                            <tr>
+                                <th>Section</th>
+                                <th>Experiment / Configuration</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>Specificity</th>
+                                <th>F1</th>
+                                <th>ROC-AUC</th>
+                                <th>PR-AUC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="benchmark-ablation-tbody">
+                            <tr><td>Architecture</td><td><b>FasterViT-2-224 (solo)</b></td><td>89.20%</td><td>88.81%</td><td>89.70%</td><td>88.70%</td><td>0.8925</td><td><b>0.9596</b></td><td><b>0.9577</b></td></tr>
+                            <tr><td>Architecture</td><td>EfficientNet-B3 (solo)</td><td>85.80%</td><td>84.76%</td><td>87.30%</td><td>84.30%</td><td>0.8601</td><td>0.9308</td><td>0.9312</td></tr>
+                            <tr><td>Architecture</td><td>EfficientFormerV2-S1 (solo)</td><td>82.55%</td><td>81.33%</td><td>84.50%</td><td>80.60%</td><td>0.8288</td><td>0.9111</td><td>0.9100</td></tr>
+                            <tr style="background: rgba(0, 216, 239, 0.08); font-weight:600;"><td>Architecture</td><td><b style="color:var(--green)">Full Ensemble (Optimal Weighted)</b></td><td><b>89.90%</b></td><td><b>93.09%</b></td><td><b>86.20%</b></td><td><b>93.60%</b></td><td><b>0.8951</b></td><td><b>0.9699</b></td><td><b>0.9702</b></td></tr>
+                            <tr><td>Weights</td><td>Optimal Weighted (Val Tuned)</td><td>90.60%</td><td>91.26%</td><td>89.80%</td><td>91.40%</td><td>0.9052</td><td>0.9699</td><td>0.9702</td></tr>
+                            <tr><td>Weights</td><td>FasterViT-Heavy (70%/20%/10%)</td><td>90.70%</td><td>91.53%</td><td>89.70%</td><td>91.70%</td><td>0.9061</td><td>0.9689</td><td>0.9688</td></tr>
+                            <tr><td>Weights</td><td>Uniform (33.3%/33.3%/33.3%)</td><td>90.95%</td><td>91.57%</td><td>90.20%</td><td>91.70%</td><td>0.9088</td><td>0.9697</td><td>0.9703</td></tr>
+                            <tr><td>Threshold</td><td>FasterViT-2-224 @ Frozen Val τ*=0.466</td><td>89.20%</td><td>88.81%</td><td>89.70%</td><td>88.70%</td><td>0.8925</td><td>0.9596</td><td>0.9577</td></tr>
+                            <tr><td>Threshold</td><td>Weighted Ensemble @ Frozen Val τ*=0.560</td><td>89.90%</td><td>93.09%</td><td>86.20%</td><td>93.60%</td><td>0.8951</td><td>0.9699</td><td>0.9702</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- TAB 4: DATASET INFO -->
+                <div id="btab-dataset" class="hidden">
+                    <div style="background: var(--bg-deep); padding: 16px; border-radius: 8px; border: 1px solid var(--bg-border);">
+                        <h4 style="color:var(--cyan); margin-bottom: 10px;">CIFAKE: Real and AI-Generated Synthetic Images</h4>
+                        <p style="color: var(--text-primary); line-height: 1.6; margin-bottom: 12px;">
+                            CIFAKE is an established computer vision benchmark composed of 60,000 synthetic (Stable Diffusion 1.4) and authentic (CIFAR-10) images.
+                        </p>
+                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px;">
+                            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border:1px solid var(--bg-border);">
+                                <div style="font-size:11px; color:var(--text-secondary)">TOTAL SAMPLES</div>
+                                <div style="font-size:18px; font-weight:bold; color:var(--cyan)">60,000</div>
+                            </div>
+                            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border:1px solid var(--bg-border);">
+                                <div style="font-size:11px; color:var(--text-secondary)">TRAIN SPLIT</div>
+                                <div style="font-size:18px; font-weight:bold; color:var(--green)">50,000</div>
+                            </div>
+                            <div style="background: var(--bg-card); padding: 12px; border-radius: 6px; border:1px solid var(--bg-border);">
+                                <div style="font-size:11px; color:var(--text-secondary)">HELD-OUT TEST SPLIT</div>
+                                <div style="font-size:18px; font-weight:bold; color:var(--amber)">20,000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
-    </main>
+    </div>
 
     <script src="/static/js/app.js"></script>
 </body>

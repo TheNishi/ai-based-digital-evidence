@@ -1,5 +1,11 @@
-seed: 1
+﻿seed: 1
 device: cuda
+
+# ==========================================
+# ABLATION STUDY CONFIGURATION
+# Dataset: CIFAKE (Real and AI-Generated Synthetic Images)
+# https://www.kaggle.com/datasets/birdy654/cifake-real-and-ai-generated-synthetic-images
+# ==========================================
 
 data:
   dataset_name: CIFAKE (Real and AI-Generated Synthetic Images)
@@ -25,6 +31,7 @@ models:
       batch_size: 256
       num_workers: 2
       img_size: 224
+
   efficientformerv2_s1:
     output_dir: runs/efficientformerv2_s1
     transforms:
@@ -38,6 +45,7 @@ models:
       batch_size: 256
       num_workers: 4
       img_size: 224
+
   faster_vit_2_224:
     output_dir: runs/faster_vit_2_224
     transforms:
